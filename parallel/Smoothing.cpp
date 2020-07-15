@@ -76,11 +76,12 @@ int main( int argc, char ** argv )
                 {
                     cout << " file read error" << endl;
                 }
-
-            }
+            //new Mat
             new_image = Mat::zeros( image.size(), image.type() );
+            }
 
-            #pragma omp barrier// ensure the file is loaded for all threads
+
+           // #pragma omp barrier// ensure the file is loaded for all threads
 
             for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
             {    
@@ -89,9 +90,10 @@ int main( int argc, char ** argv )
                 image = new_image;
                 //if( display_dst( DELAY_BLUR, new_image ) != 0 ) { return 0; } 
             }
+            
+            #pragma omp single nowait
             stringstream ss;//convert image number to string
             ss << k;
-            #pragma omp single nowait
             imwrite("../output/" + ss.str() + "out.jpg", new_image);//write image
         }
     }

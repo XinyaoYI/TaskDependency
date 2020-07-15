@@ -56,12 +56,13 @@ int main( int argc, char ** argv )
 
     Mat image;//declare matrices
     Mat new_image;
+    Mat image_to_write; /* make this just a pointer */
 
     glob(path, fn, true);//preload
 
     double elapsed_smooth = read_timer();//start timer
     
-    #pragma omp parallel
+    #pragma omp parallel 
     {
 
         for(int k=0; k<fn.size(); k++)
@@ -76,8 +77,8 @@ int main( int argc, char ** argv )
                 {
                     cout << " file read error" << endl;
                 }
-            //new Mat
-            new_image = Mat::zeros( image.size(), image.type() );
+                //new Mat, we need a new buffer for the image
+                new_image = Mat::zeros( image.size(), image.type() );
             }
 
 
@@ -87,14 +88,20 @@ int main( int argc, char ** argv )
             {    
                 smooth(image, new_image);
                 #pragma omp single 
-                image = new_image;
+                {
+                    image = new_image;
+                    image_to_write = new_image;
+                }
                 //if( display_dst( DELAY_BLUR, new_image ) != 0 ) { return 0; } 
             }
             
             #pragma omp single nowait
-            stringstream ss;//convert image number to string
-            ss << k;
-            imwrite("../output/" + ss.str() + "out.jpg", new_image);//write image
+            {
+                stringstream ss;//convert image number to string
+                ss << k;
+                imwrite("../output/" + ss.str() + "out.jpg", image_to_write);//write image
+                //TODO: relese the Mat buffer for image_to_write
+            }
         }
     }
 

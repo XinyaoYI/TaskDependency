@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>index</title>
+
+
+<style type="text/css">
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 20px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 90%;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h2 id="toc_0">Assignment 1 – CSCE569, Spring 2018</h2>
+
+<h3 id="toc_1">Due:  11:55PM Feburary 9, Friday 2018</h3>
+
+<hr>
+
+<h2 id="toc_2">2-Dimensional Matrix-Matrix Multiplication and Matrix-Vector Multiplication with Different Matrix Storage</h2>
+
+<p>In this assignment, you will implement two C functions, one for performing 2-dimensional matrix-matrix multiplication, and the other for matrix vector multiplication. The function signatures are already given as follows and you can use the class examples (<a href="../resources/mm.c">mm.c</a> and <a href="../resources/matvec.c">matvec.c</a>) as the starting point for creating your implementation. </p>
+
+<div><pre><code class="language-none">/* C[N][M] = A[N][K] * B[K][M] */
+void mm(int N, int K, int M, REAL * A, REAL * B, REAL * C, int A_rowMajor, int B_rowMajor);
+
+/* C[N] = A[N][M] * B[M] */
+void mv(int N, int M, REAL *A, REAL *B, REAL *C, int A_rowMajor);</code></pre></div>
+
+<p>The memory of each matrix (A, B, or C) is provided using <code>REAL * A</code>, and its dimensions are specified as function parameters (N, K, or M). The elements of a 2-dimensional matrix could be stored in either row major or column major, identified using <code>A_rowMajor</code> (or <code>B_rowMajor</code>). If <code>A_rowMajor</code> is non-zero, elements of A are stored in row major, otherwise, they are stored in column major. Your function should be able to handle any combination of the storage type of each matrix in the arguments, e.g. there are four cases for mm function and two cases for mv function. The results in matrix C should be always in row major. </p>
+
+<p>The two source files provided include helper functions for initializing the matrix and for timing the execution, and a skeleton main function. You can compile and build the executable using gcc compiler (e.g. <code>gcc -fopenmp -O0 mm.c -o mm</code>), in which –O0 is the flag optimization level 0 (no optimization). You can try –O2 or –O3 optimization flag. The output of your program should include both the time of computation (ms) and FLOPS performance. Please ignore the OpenMP parallel function (e.g. <code>mm_omp_parallel</code>) at the moment. </p>
+
+<h2 id="toc_3">Image Histogram and Smoothing using OpenCV</h2>
+
+<p>In this assignment, you will implement two image processing algorithms, Image Histogram and Smoothing. <a href="https://opencv.org/">OpenCV</a> will be used for reading, writing and displaying images, and for getting and setting pixel values of an image. The <code>read_timer()</code> function provided in <code>mm.c</code> or <code>matvec.c</code> can be used for timing purpose.  The output of your program should include both the time of computation (ms) and FLOPS performance.</p>
+
+<h4 id="toc_4">Histogram calculation</h4>
+
+<p>Image histogram provides a graphical representation of the intensity distribution of an image by quantifying the number of pixels for each intensity value considered. The description of image histogram and an OpenCV example for calcualting histogram can be found from <a href="https://docs.opencv.org/3.4.0/d8/dbc/tutorial_histogram_calculation.html">OpenCV Tutorial for Histogram Calculation</a>, and <a href="http://homepages.inf.ed.ac.uk/rbf/BOOKS/PHILLIPS/cips2edsrc/HIST.C">this C code</a> provide a very concise implementation for the algorithm.</p>
+
+<h4 id="toc_5">Image smoothing</h4>
+
+<p>Image smoothing, which also referred to as image blurring is a simple and frequently used image processing operation. Depending the effects we want the smoothing operation to be applied to an image, we can apply different filter (coefficients matrix) to an image using the same algorithms. The description and an OpenCV example can be found from <a href="https://docs.opencv.org/3.4.0/dc/dd3/tutorial_gausian_median_blur_bilateral_filter.html">OpenCV Tutorial for Smoothing Images</a>, and <a href="http://homepages.inf.ed.ac.uk/rbf/BOOKS/PHILLIPS/cips2edsrc/FILTER.C">this C code</a> provide concise code for image filtering algorithms. </p>
+
+<p>For your implementation, while you can look at the OpenCV&#39;s implementation for Histogram calculation and Image smoothing, they are much more complicated that we we need for the purpose of this assignment. It would be much easier you adapt the implmentation in the two C codes to the OpenCV image processing framework.</p>
+
+<p>The methods for reading/writing/displaying an image and for getting/setting a pixel value of an image are pretty simple in OpenCV, which can be found from <a href="https://docs.opencv.org/3.4.0/d5/d98/tutorial_mat_operations.html">this short description with code sample for operating images</a>. For your implementation, the recommendation is to start with <a href="https://docs.opencv.org/3.4.0/d3/dc1/tutorial_basic_linear_transform.html">the program for changing the contrast and brightness of an image</a>, which provides executable codes for those operations. </p>
+
+<h2 id="toc_6">Source Code to Start</h2>
+
+<p><a href="../Assignment_1.zip">The Assignment_1.zip</a> package contains all the files you need, including mm.c, matvec.c, Histogram.cpp, and Smoothing.cpp, cmake CMakeLists.txt, image data, other sample souce files, an excel file for creating figures, this webpage, and a README.md file. <strong>The Histogram.cpp, Smoothing.cpp and DisplayImage.cpp files for OpenCV image processing are all from the OpenCV tutorial mentioned above and they are for your reference only. For your Histogram and Smoothing implementation, you should start with the ContractBrightness.cpp file and modify the code according to the implementation done in HIST.C and FILTER.C.</strong> README.md provide instructions for how to build each executable.</p>
+
+<h2 id="toc_7"><a href="../resources/HardwareSoftware.html">Machine to use for development</a></h2>
+
+<h2 id="toc_8">Submission</h2>
+
+<p><strong>Your submission should be a single zipped file named LastNameFirstName.zip that include source code files and one report document file named as LastNameFirstNameAssignment1.pdf. The easiest way is to do your implementation in a folder unpacked from Assignment_1.zip. After that, add the report file and re-package the folder and submit it.</strong> The source files contain your implementations, and each file should be invidually compiled to generate executables. The report is max 3-page report that includes: </p>
+
+<ol>
+<li> Short description on how you implement mm, mv, image histogram and smoothing.</li>
+<li> Performance report using two figures when running mm and mv with 1024x1024 and 2048x2048 matrix sizes (more sizes of configuration are welcome). Figure 1 reports the execution times in ms for mv compiled with –O0 and –O3 optimization flags for gcc, Figure 2 reports execution times in ms for mm compiled with –O0 and –O3 optimization flags for gcc. <a href="Assignment_1_result_plot.xlsx">An excel sheet</a> is provided for creating those figures by simply inputing your execution results and the figure will be automatically populated and generated by Excel.  In your report, you should explain the reasons of the performance differences between different matrix storage types (row major or column major) and the reasons of performance differences between –O0 and –O3 optimization flags (check gcc manual page and search internet to find correct answers, and explain in your English). </li>
+<li> Please indicate in your report, which machine you use and the CPU and memory information of your machine, using <code>cat /proc/cpuinfo</code> command. </li>
+<li>In your report, compute and report CPU peak performance based on the CPU you are using,  and then compute and report the performance efficiency of each function (mm, mv, histogram and smoothing). Please be noted that your program is sequential and only use one core, so the performance efficiency = program FLOPS / per-core peak. </li>
+<li> Explanation of the performance results shown in your figures and draw meaningful conclusions. </li>
+</ol>
+
+<h4 id="toc_9">Grading:</h4>
+
+<ol>
+<li>Functions implementations: 60 points (10 for mm.c, 10 for matvec.c, 20 for Histogram.cpp and 20 for Smoothing.cpp). For source file that cannot be compiled, you only receive max 60% of function implementation points. For compliable, but with execution errors or incorrectness, you receive max 80% of function implementation points. </li>
+<li>Report: 40 points. </li>
+</ol>
+
+<h2 id="toc_10">Assignment Policy</h2>
+
+<ol>
+<li>Programming assignments are to be done individually. You may discuss assignments with others, but you must code your own solutions and submit them with a write-up in your own words. Indicate clearly the name(s) of student(s) you collaborated with, if any. </li>
+<li>Although homework assignments will not be pledged, per se, the submitted solutions must be your work and not copied from other students&#39; assignments or other sources. </li>
+<li>You may not transmit or receive code from anyone in the class in any way--visually (by showing someone your code), electronically (by emailing, posting, or otherwise sending someone your code), verbally (by reading your code to someone), or in any other way.</li>
+<li>You may not collaborate with people who are not your classmates, TAs, or instructor in any way. For example, you may not post questions to programming forums. </li>
+<li>Any violations of these rules will be reported to the honor council. Check the syllabus for the late policy and academic conduct. </li>
+</ol>
+
+
+
+
+</body>
+
+</html>

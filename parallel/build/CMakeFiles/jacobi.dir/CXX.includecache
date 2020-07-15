@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/logan/Desktop/MurrayLogan/jacobi.cpp
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+math.h
+-
+omp.h
+-
+sys/timeb.h
+-
+

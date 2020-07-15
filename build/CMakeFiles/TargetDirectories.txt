@@ -1,0 +1,5 @@
+/home/xinyaoyi/Downloads/MurrayLogan/build/CMakeFiles/edit_cache.dir
+/home/xinyaoyi/Downloads/MurrayLogan/build/CMakeFiles/Histogram.dir
+/home/xinyaoyi/Downloads/MurrayLogan/build/CMakeFiles/rebuild_cache.dir
+/home/xinyaoyi/Downloads/MurrayLogan/build/CMakeFiles/Smoothing.dir
+/home/xinyaoyi/Downloads/MurrayLogan/build/CMakeFiles/jacobi.dir

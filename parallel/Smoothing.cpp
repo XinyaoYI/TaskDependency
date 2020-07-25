@@ -55,8 +55,8 @@ int main( int argc, char ** argv )
     vector<cv::String> fn;//data strcuture for files
 
     Mat image;//declare matrices
-    Mat new_image;
-    Mat image_to_write; /* make this just a pointer */
+    //Mat new_image;
+    Mat *image_to_write[36]; /* make this just a pointer */
 
     glob(path, fn, true);//preload
 
@@ -73,38 +73,32 @@ int main( int argc, char ** argv )
             #pragma omp single 
             {
                 image = imread(fn[k]);
+                
                 if(image.empty())
                 {
                     cout << " file read error" << endl;
                 }
-                //new Mat, we need a new buffer for the image
-                new_image = Mat::zeros( image.size(), image.type() );
+                image_to_write[k] = new Mat( Mat::zeros( image.size(), image.type() ) );
             }
-
-
-           // #pragma omp barrier// ensure the file is loaded for all threads
-
             for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
-            {    
-                smooth(image, new_image);
+            {
+                smooth(image, *image_to_write[k]);
                 #pragma omp single 
                 {
-                    image = new_image;
-                    image_to_write = new_image;
-                }
-                //if( display_dst( DELAY_BLUR, new_image ) != 0 ) { return 0; } 
+                    image = *image_to_write[k];
+                } 
             }
             
             #pragma omp single nowait
             {
-                stringstream ss;//convert image number to string
+                stringstream ss;
                 ss << k;
-                imwrite("../output/" + ss.str() + "out.jpg", image_to_write);//write image
-                //TODO: relese the Mat buffer for image_to_write
+                imwrite("../output/" + ss.str() + "out.jpg", *image_to_write[k]);
+                delete image_to_write[k];
             }
         }
     }
-
+   
     elapsed_smooth  = (read_timer() - elapsed_smooth);//end timer
 
     
@@ -114,7 +108,6 @@ int main( int argc, char ** argv )
     printf("------------------------------------------------------------------------------------------------------\n");
     printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
 
-    //waitKey();
     return 0;
 }
 
@@ -131,10 +124,9 @@ int smooth(Mat &src, Mat &dest)
     #pragma omp for schedule(guided)
     for( int y = 1; y < src.rows-1; y++ ) {
         for( int x = 1; x < src.cols-1; x++ ) {
-            //smoothing based on RGB
             for( int c = 0; c < 3; c++ ) {
                 sum = 0;
-                for(a=-1; a<2; a++){//weight center pixel with surrounding pixels based on filter
+                for(a=-1; a<2; a++){
                     for(b=-1; b<2; b++){
                        sum = sum + (src.at<Vec3b>(Point(x+b, y+a)).val[c] * lpf_filter_16[a+1][b+1]);
                     }

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/xinyaoyi/Downloads/MurrayLogan/Histogram.cpp
+/home/xinyaoyi/Documents/TaskDependency/task/Histogram.cpp
 opencv2/core/core.hpp
 -
 opencv2/highgui/highgui.hpp
@@ -14,9 +14,9 @@ opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
 -
 opencv2/imgcodecs.hpp
-/home/xinyaoyi/Downloads/MurrayLogan/opencv2/imgcodecs.hpp
+/home/xinyaoyi/Documents/TaskDependency/task/opencv2/imgcodecs.hpp
 opencv2/highgui.hpp
-/home/xinyaoyi/Downloads/MurrayLogan/opencv2/highgui.hpp
+/home/xinyaoyi/Documents/TaskDependency/task/opencv2/highgui.hpp
 sys/timeb.h
 -
 iostream

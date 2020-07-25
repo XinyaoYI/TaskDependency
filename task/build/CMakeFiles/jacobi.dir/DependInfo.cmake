@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/xinyaoyi/Downloads/MurrayLogan/jacobi.cpp" "/home/xinyaoyi/Downloads/MurrayLogan/build/CMakeFiles/jacobi.dir/jacobi.cpp.o"
+  "/home/xinyaoyi/Documents/TaskDependency/task/jacobi.cpp" "/home/xinyaoyi/Documents/TaskDependency/task/build/CMakeFiles/jacobi.dir/jacobi.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -35,6 +35,10 @@ const int RED_VALUE = 0;
 const int GREEN_VALUE = 1;
 const int BLUE_VALUE = 2;
 
+double read_time = 0;
+double process_time = 0;
+double write_time = 0;
+
 /**
  * function main
  */
@@ -54,7 +58,8 @@ int main( int argc, char ** argv )
     vector<cv::String> fn;//data strcuture for files
 
     Mat image;//declare matrices
-    Mat new_image;
+    //Mat new_image;
+    Mat *image_to_write[36]; /* make this just a pointer */
 
     glob(path, fn, true);//preload
 
@@ -65,24 +70,35 @@ int main( int argc, char ** argv )
         for(int k=0; k<fn.size(); k++)
         {
             {
+                double read_start = read_timer();
                 image = imread(fn[k]);
                 if(image.empty())
                 {
                     cout << " file read error" << endl;
                 }
+                image_to_write[k] = new Mat( Mat::zeros( image.size(), image.type() ) );
 
+                double read_end = read_timer();
+                read_time += (read_end-read_start);
             }
-            new_image = Mat::zeros( image.size(), image.type() );
 
+            double process_start = read_timer();
             for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
             {    
-                smooth(image, new_image);
-                image = new_image;
+                smooth(image, *image_to_write[k]);
+                image = *image_to_write[k];
                 //if( display_dst( DELAY_BLUR, new_image ) != 0 ) { return 0; } 
             }
+            double process_end = read_timer();
+            process_time += (process_end-process_start);
+
+            double write_start = read_timer();
             stringstream ss;//convert image number to string
             ss << k;
-            imwrite("../output/" + ss.str() + "out.jpg", new_image);//write image
+            imwrite("../output/" + ss.str() + "out.jpg", *image_to_write[k]);//write image
+            double write_end = read_timer();
+            write_time += (write_end-write_start);
+            delete image_to_write[k];
         }
     }
 
@@ -94,6 +110,9 @@ int main( int argc, char ** argv )
     printf("Performance:\t\t\tRuntime (ms)\t MOPS \n");
     printf("------------------------------------------------------------------------------------------------------\n");
     printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
+    printf("read:\t\t\t\t%4f\t%4f\n",  read_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  read_time));
+    printf("process:\t\t\t\t%4f\t%4f\n",  process_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  process_time));
+    printf("write:\t\t\t\t%4f\t%4f\n",  write_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  write_time));
 
     //waitKey();
     return 0;

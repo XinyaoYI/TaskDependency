@@ -31,6 +31,10 @@ const int RED_VALUE = 0;
 const int GREEN_VALUE = 1;
 const int BLUE_VALUE = 2;
 
+double read_time = 0;
+double process_time = 0;
+double write_time = 0;
+
 int main( int argc, char ** argv ) {
 
     cout << " Basic Filter" << endl;
@@ -46,47 +50,57 @@ int main( int argc, char ** argv ) {
     vector<cv::String> fn;//data strcuture for files
 
     Mat image;//declare matrices
-    Mat new_image;
+    //Mat new_image;
+    Mat *image_to_write[36]; /* make this just a pointer */
 
     glob(path, fn, true);//preload
 
     double elapsed_smooth = read_timer();//start timer
 
     int x,y,z;
-#pragma omp parallel num_threads(16)
-{
-  for(int k=0; k<fn.size(); k++) {
-    int thread_id = omp_get_thread_num();
-    int num_threads = omp_get_num_threads();
-    printf("me: %d  thread:  %d \n", thread_id, num_threads);
-
-#pragma omp single
-#pragma omp task depend (out:x)
-{
-    image = imread(fn[k]);
-    if(image.empty()) cout << " file read error" << endl;
-}
-
-#pragma omp single
-{
-    #pragma omp task depend(in:x) depend(out:y) //task2 
+    #pragma omp parallel num_threads(16)
     {
-        new_image = Mat::zeros( image.size(), image.type() );
-        for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2){ 
-            smooth(image, new_image);
-            image = new_image;
+        for(int k=0; k<fn.size(); k++) {
+            int thread_id = omp_get_thread_num();
+            int num_threads = omp_get_num_threads();
+            printf("me: %d  thread:  %d \n", thread_id, num_threads);
+            double read_start = read_timer();
+            #pragma omp task depend (out:x)
+            {
+                image = imread(fn[k]);
+                if(image.empty()) cout << " file read error" << endl;
+                image_to_write[k] = new Mat( Mat::zeros( image.size(), image.type() ) );
+            }
+            double read_end = read_timer();
+            read_time += (read_end-read_start);
+            double process_start = read_timer();
+            #pragma omp single
+            {
+                #pragma omp task depend(in:x) depend(out:y) //task2 
+                {
+                    for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2){ 
+                        smooth(image, *image_to_write[k]);
+                        #pragma omp critical
+                        {
+                            image = *image_to_write[k];
+                        }
+                    }
+                }
+            }
+            double process_end = read_timer();
+            process_time += (process_end-process_start);
+            double write_start = read_timer();
+            #pragma omp single nowait
+            {
+                stringstream ss;//convert image number to string
+                ss << k;
+                imwrite("../output/" + ss.str() + "out.jpg", *image_to_write[k]);
+                delete image_to_write[k];
+            }
+            double write_end = read_timer();
+            write_time += (write_end-write_start);
         }
     }
-}
-#pragma omp single
-{
-    stringstream ss;//convert image number to string
-    ss << k;
-    imwrite("../output/" + ss.str() + "out.jpg", new_image);
-}
-}
-
-}
     elapsed_smooth  = (read_timer() - elapsed_smooth);//end timer
 
     
@@ -95,21 +109,21 @@ int main( int argc, char ** argv ) {
     printf("Performance:\t\t\tRuntime (ms)\t MOPS \n");
     printf("------------------------------------------------------------------------------------------------------\n");
     printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
+    printf("read:\t\t\t\t%4f\t%4f\n",  read_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  read_time));
+    printf("process:\t\t\t\t%4f\t%4f\n",  process_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  process_time));
+    printf("write:\t\t\t\t%4f\t%4f\n",  write_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  write_time));
 return 0;
 }
 
 int smooth(Mat &src, Mat &dest)
 {
-    
-    //my choice of filter
     int lpf_filter_16[3][3] =
     {{1, 2, 1},
      {2, 4, 2},
      {1, 2, 1}};
 
     int sum = 0, a = 0, b = 0, filterType = 16;
-//#pragma omp taskloop simd
-#pragma omp taskloop
+    #pragma omp taskloop
     for( int y = 1; y < src.rows-1; y++ ) {
         for( int x = 1; x < src.cols-1; x++ ) {
             for( int c = 0; c < 3; c++ ) {

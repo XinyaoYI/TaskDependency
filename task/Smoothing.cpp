@@ -58,32 +58,32 @@ int main( int argc, char ** argv ) {
     double elapsed_smooth = read_timer();//start timer
 
     int x,y,z;
-    #pragma omp parallel num_threads(16)
+    #pragma omp parallel num_threads(8)
     {
         for(int k=0; k<fn.size(); k++) {
             int thread_id = omp_get_thread_num();
             int num_threads = omp_get_num_threads();
             printf("me: %d  thread:  %d \n", thread_id, num_threads);
             double read_start = read_timer();
-            #pragma omp task depend (out:x)
+            #pragma omp single
             {
+            #pragma omp task depend (out:x)
+              {
                 image = imread(fn[k]);
                 if(image.empty()) cout << " file read error" << endl;
                 image_to_write[k] = new Mat( Mat::zeros( image.size(), image.type() ) );
+              }
             }
             double read_end = read_timer();
             read_time += (read_end-read_start);
             double process_start = read_timer();
             #pragma omp single
             {
-                #pragma omp task depend(in:x) depend(out:y) //task2 
+                #pragma omp task depend(in:x) depend(out:y) 
                 {
                     for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2){ 
                         smooth(image, *image_to_write[k]);
-                        #pragma omp critical
-                        {
-                            image = *image_to_write[k];
-                        }
+                        image = *image_to_write[k];
                     }
                 }
             }
@@ -108,10 +108,10 @@ int main( int argc, char ** argv ) {
     printf("------------------------------------------------------------------------------------------------------\n");
     printf("Performance:\t\t\tRuntime (ms)\t MOPS \n");
     printf("------------------------------------------------------------------------------------------------------\n");
-    printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
-    printf("read:\t\t\t\t%4f\t%4f\n",  read_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  read_time));
-    printf("process:\t\t\t\t%4f\t%4f\n",  process_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  process_time));
-    printf("write:\t\t\t\t%4f\t%4f\n",  write_time * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  write_time));
+    printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (8)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
+    printf("read:\t\t\t\t%4f\t%4f\n",  read_time * 1.0e3, (8)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  read_time));
+    printf("process:\t\t\t\t%4f\t%4f\n",  process_time * 1.0e3, (8)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  process_time));
+    printf("write:\t\t\t\t%4f\t%4f\n",  write_time * 1.0e3, (8)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  write_time));
 return 0;
 }
 

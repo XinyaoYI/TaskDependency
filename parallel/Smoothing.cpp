@@ -62,7 +62,7 @@ int main( int argc, char ** argv )
 
     double elapsed_smooth = read_timer();//start timer
     
-    #pragma omp parallel 
+    #pragma omp parallel num_threads(32)
     {
 
         for(int k=0; k<fn.size(); k++)
@@ -70,7 +70,7 @@ int main( int argc, char ** argv )
             int thread_id = omp_get_thread_num();
             int num_threads = omp_get_num_threads();
             printf("me: %d  thread:  %d \n", thread_id, num_threads);
-            #pragma omp single 
+            #pragma omp single
             {
                 image = imread(fn[k]);
                 
@@ -106,7 +106,7 @@ int main( int argc, char ** argv )
     printf("------------------------------------------------------------------------------------------------------\n");
     printf("Performance:\t\t\tRuntime (ms)\t MOPS \n");
     printf("------------------------------------------------------------------------------------------------------\n");
-    printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (12)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
+    printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (32)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
 
     return 0;
 }

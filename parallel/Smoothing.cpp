@@ -54,7 +54,7 @@ int main( int argc, char ** argv )
     cv::String path(pathForFolder+"/*.jpg");//path to files
     vector<cv::String> fn;//data strcuture for files
 
-    Mat image;//declare matrices
+    Mat *image[36];//declare matrices
     //Mat new_image;
     Mat *image_to_write[36]; /* make this just a pointer */
 
@@ -64,29 +64,38 @@ int main( int argc, char ** argv )
     
     #pragma omp parallel num_threads(32)
     {
-
-        for(int k=0; k<fn.size(); k++)
+        int thread_id = omp_get_thread_num();
+        int num_threads = omp_get_num_threads();
+        printf("me: %d  thread:  %d \n", thread_id, num_threads);
+        #pragma omp single
         {
-            int thread_id = omp_get_thread_num();
-            int num_threads = omp_get_num_threads();
-            printf("me: %d  thread:  %d \n", thread_id, num_threads);
-            #pragma omp single
-            {
-                image = imread(fn[k]);
+                image[0] = imread(fn[0]);
                 
-                if(image.empty())
+                if(image[0].empty())
                 {
                     cout << " file read error" << endl;
                 }
-                image_to_write[k] = new Mat( Mat::zeros( image.size(), image.type() ) );
+                image_to_write[0] = new Mat( Mat::zeros( image.size(), image.type() ) );
+        }
+        
+        for(int k=0; k<fn.size(); k++)
+        {
+            if (k<fn.size-1) {
+               #pragma omp single nowait
+               {
+                  image[k+1] = imread(fn[k+1]);
+                
+                  if(image[k+1].empty())
+                  {
+                    cout << " file read error" << endl;
+                  }
+                  image_to_write[k+1] = new Mat( Mat::zeros( image[k+1].size(), image[k+1].type() ) );
+               }
             }
             for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
             {
-                smooth(image, *image_to_write[k]);
-                #pragma omp single 
-                {
-                    image = *image_to_write[k];
-                } 
+                smooth(image[k], *image_to_write[k]);//implicit barrier because of for inside smooth
+                image[k] = *image_to_write[k];
             }
             
             #pragma omp single nowait

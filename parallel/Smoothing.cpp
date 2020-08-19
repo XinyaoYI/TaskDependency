@@ -1,4 +1,4 @@
-/**
+ /**
  * file Smoothing.cpp
  * brief Sample code for simple filters
  * author OpenCV team
@@ -62,40 +62,47 @@ int main( int argc, char ** argv )
 
     double elapsed_smooth = read_timer();//start timer
     
-    #pragma omp parallel num_threads(32)
+    #pragma omp parallel num_threads(8)
     {
         int thread_id = omp_get_thread_num();
         int num_threads = omp_get_num_threads();
         printf("me: %d  thread:  %d \n", thread_id, num_threads);
         #pragma omp single
         {
-                image[0] = imread(fn[0]);
-                
-                if(image[0].empty())
+
+                image[0] = new Mat();
+                *image[0] = imread(fn[0]);
+
+                if(image[0]->empty())
                 {
                     cout << " file read error" << endl;
                 }
-                image_to_write[0] = new Mat( Mat::zeros( image.size(), image.type() ) );
+                image_to_write[0] = new Mat( Mat::zeros( image[0]->size(), image[0]->type() ) );
         }
         
         for(int k=0; k<fn.size(); k++)
         {
-            if (k<fn.size-1) {
+            if (k<(fn.size()-1)) {
                #pragma omp single nowait
                {
-                  image[k+1] = imread(fn[k+1]);
+                  //
+                  image[k+1] = new Mat();
+                  *image[k+1] = imread(fn[k+1]);
                 
-                  if(image[k+1].empty())
+                  if(image[k+1]->empty())
                   {
                     cout << " file read error" << endl;
                   }
-                  image_to_write[k+1] = new Mat( Mat::zeros( image[k+1].size(), image[k+1].type() ) );
+                  image_to_write[k+1] = new Mat( Mat::zeros( image[k+1]->size(), image[k+1]->type() ) );
                }
             }
             for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
             {
-                smooth(image[k], *image_to_write[k]);//implicit barrier because of for inside smooth
-                image[k] = *image_to_write[k];
+                smooth(*image[k], *image_to_write[k]);//implicit barrier because of for inside smooth
+                #pragma omp single
+                {
+                    *image[k] = *image_to_write[k];
+                }
             }
             
             #pragma omp single nowait
@@ -115,7 +122,7 @@ int main( int argc, char ** argv )
     printf("------------------------------------------------------------------------------------------------------\n");
     printf("Performance:\t\t\tRuntime (ms)\t MOPS \n");
     printf("------------------------------------------------------------------------------------------------------\n");
-    printf("mm:\t\t\t\t%4f\t%4f\n",  elapsed_smooth * 1.0e3, (32)*(image.rows-1)*(image.cols-1)*(MAX_KERNEL_LENGTH/2) / (1.0e6 *  elapsed_smooth));
+    printf("mm:\t\t\t\t%4f\t\n",  elapsed_smooth * 1.0e3);
 
     return 0;
 }
@@ -163,3 +170,4 @@ double read_timer() {
     ftime(&tm);
     return (double) tm.time + (double) tm.millitm / 1000.0;
 }
+

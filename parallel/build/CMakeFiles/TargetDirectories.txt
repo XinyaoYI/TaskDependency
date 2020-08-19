@@ -1,5 +1,0 @@
-/home/xinyaoyi/Documents/TaskDependency/parallel/build/CMakeFiles/edit_cache.dir
-/home/xinyaoyi/Documents/TaskDependency/parallel/build/CMakeFiles/Histogram.dir
-/home/xinyaoyi/Documents/TaskDependency/parallel/build/CMakeFiles/rebuild_cache.dir
-/home/xinyaoyi/Documents/TaskDependency/parallel/build/CMakeFiles/Smoothing.dir
-/home/xinyaoyi/Documents/TaskDependency/parallel/build/CMakeFiles/jacobi.dir
